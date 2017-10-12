@@ -87,32 +87,240 @@ compress
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%% Content starts here %%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Messaging Standards}
+
+\section{Project Goal}
+\begin{frame}{Project Goal}\framesubtitle{}
+	Implement a Prototype for a MQTT-SN gateway runnable on Semi-Constrained devices.
+
+\end{frame}
+
+\section{Related Work}
+\subsection{Messaging Standards}
 \begin{frame}{Eclipse IoT Developer Survey 2017}\framesubtitle{}
 \image{.9\textwidth}{EclipseMessagingStandard.png}{Eclipse IoT Developer Survey 2017 - Messaging Standards}{}
 \end{frame}
 
-\subsection{HTTP}
+%\subsubsection{HTTP}
 \begin{frame}{HTPP}\framesubtitle{}
 \begin{itemize}
 \item client-server paradigm
 \item addressable resource (URI)
 \end{itemize}
-\image{.5\textwidth}{HTTPRequestResponseBehaviour.png}{HTTP request response}{img:logo}
+\image{.5\textwidth}{HTTPRequestResponseBehaviour.png}{publish subscribe example}{img:logo}
+\end{frame}
+
+%\subsubsection{MQTT}
+\begin{frame}{MQTT}\framesubtitle{}
+	\begin{itemize}
+		\item publish-subscribe
+		\item data centrich approach
+	\end{itemize}
+	\image{.5\textwidth}{MQTTPubSub.png}{HTTP request response}{img:logo}
+\end{frame}
+
+%\subsubsection{MQTT QoS}
+\begin{frame}{MQTT QoS}\framesubtitle{}
+	\begin{itemize}
+		\item QoS 0 (at most once)
+		\item QoS 1 (at least once)
+		\item QoS 2 (exactly once)
+	\end{itemize}
+	\image{.5\textwidth}{MQTTQoS.png}{MQTT QoS methods}{img:logo}
+\end{frame}
+
+%\subsubsection{MQTT-SN}
+\begin{frame}{MQTT-SN}\framesubtitle{}
+	\begin{itemize}
+		\item version of MQTT
+		\item not connection oriented (no TCP)
+		\item supports short \& pre-defined topic names
+		\item supports sleeping clients
+		\item QoS -1 (QoS 0 publish without connect)
+	\end{itemize}
 \end{frame}
 
 
+%\subsubsection{Comparing HTTP, MQTT, MQTT-SN}
+\begin{frame}{Comparing HTTP, MQTT, MQTT-SN}\framesubtitle{}
+	\begin{itemize}
+		\item comparing minimal packet sizes in TCP/IP Model
+		\item minimum valuable example:	HTTP GET, MQTT publish QoS 0, MQTT-SN publish QoS 0
+		\item result: MQTT + TCP + WiFi = 82 bytes vs MQTT-SN + BLE 21 bytes
+	\end{itemize}
+	\image{.5\textwidth}{TCPIPModelLayerWithLayerBytes.png}{TCP/IP Model Layer with minimal protocol length}{img:logo}
+\end{frame}
+
+
+\subsection{IoT Environments}
+\begin{frame}{IoT Environments}\framesubtitle{}
+	\image{.5\textwidth}{DeviceTypes.png}{IoT Environment from small hardware to the cloud}{img:logo}
+\end{frame}
+
+\subsection{Device Types}
+\begin{frame}{Device Types}\framesubtitle{}
+\begin{itemize}
+	\item Constrained Devices
+	\begin{itemize}
+	\item Limited resources (FLASH, CPU, RAM, Energy)
+	\end{itemize}
+	\item Semi-Constrained Devices
+	\begin{itemize}
+		\item Limited resource (FLASH, CPU, RAM, not Energy)
+	\end{itemize}
+	\item Unconstrained Devices
+	\begin{itemize}
+		\item Nealy unlimited resources (HDD, CPU, RAM)
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+\subsection{Target Hardware and Software Environment}
+\begin{frame}{Target Hardware and Software Environment}\framesubtitle{}
+	\image{.17\textwidth}{SDCardTestBoard.jpg}{NodeMCU v2 (ESP8266) + SDHC Card as Target Environment}{img:logo}
+	\image{.3\textwidth}{ArduinoCommunityLogo.png}{Arduino as Software Environment}{img:logo}
+\end{frame}
+
+
+\subsection{MQTT-SN Architecture}
+%\subsubsection{MQTT-SN Architecture}
+\begin{frame}{MQTT-SN Architecture}\framesubtitle{}
+\begin{itemize}
+	\item three MQTT-SN components: client, gateway, forwarder
+\end{itemize}
+	\image{.5\textwidth}{MQTTSNArchitecture.png}{MQTT-SN Architecture}{img:logo}
+\end{frame}
+\begin{frame}{MQTT-SN Gateway Architecture}\framesubtitle{}
+	\begin{itemize}
+		\item two kind of gateways: transparent and aggregating
+	\end{itemize}
+	\image{.8\textwidth}{TransparendAndAggregatingGateways.png}{MQTT-SN gateway architecture}{img:logo}
+\end{frame}
+
+
+%\subsubsection{MQTT-SN Client Lify Cycle}
+\begin{frame}{MQTT-SN Client Lify Cycle}\framesubtitle{}
+	\begin{itemize}
+		\item MQTT-SN client as a constrained device:
+		\begin{itemize}
+			\item find a MQTT-SN Gateway via advertisement or searching a gateway
+			\item connect to the MQTT-SN gateway with a will message
+			\item register topics
+			\item subscribe to topics
+			\item send and receive publishes
+			\item unsubscribe from topics
+			\item sleep 
+			\item wake up and collect queued publishes
+			\item sleep and wake up frequently
+			\item power source is empty - will message is published
+		\end{itemize}
+			\end{itemize}
+\end{frame}
+
+\subsection{Transmission Protocols}
+\begin{frame}{Transmission Protocols}\framesubtitle{}
+	\image{.8\textwidth}{TransmissionProtocols.png}{example transmission protocols}{img:logo}
+\end{frame}
+
+\subsection{Overview - MQTT-SN, Transmission Protocols, Device Types}
+\begin{frame}{Overviewv - MQTT-SN, Transmission Protocols, Device Types}\framesubtitle{}
+	\image{.8\textwidth}{MQTTSNTransmissionProtocolsAndDeviceTypes.png}{MQTT-SN, Transmission Protocols, Device Types}{img:logo}
+\end{frame}
+
+\section{MQTT-SN Gateway Implementation}
+\subsection{Core Components}
+\begin{frame}{Core Components}\framesubtitle{}
+			\begin{itemize}
+				\item environment independent implementation
+				\item MqttSnMessageHandler + Core implemented - rest interfaces
+			\end{itemize}
+	\image{.8\textwidth}{CoreClassDiagram.png}{Core Component class diagram}{img:logo}
+\end{frame}
+
+\subsection{Gatway Class}
+\begin{frame}{Core Components}\framesubtitle{}
+	\begin{itemize}
+		\item holds references to implementation - single class to embed
+		\item initializes components' references
+		\item loop()s over components
+	\end{itemize}
+	\image{.5\textwidth}{GatewayClassCollaborationDiagram.png}{Gateway class collaboration diagram}{img:logo}
+\end{frame}
+
+
+\subsection{Linux Gateway Implementation}
+\begin{frame}{Linux Gateway Implementation}\framesubtitle{}
+	\image{.5\textwidth}{LinuxClassDiagramWithIcons.png}{Linux Gateway implements Core Component's interfce. Using UDP and Paho embedded C/C++ MQTT Client}{img:logo}
+\end{frame}
+
+\subsection{Unit and Regression Testing}
+\begin{frame}{Unit and Regression Testing}\framesubtitle{}
+	\begin{itemize}
+		\item using GoogleTest and GoogleMock
+		\item starting tests inside IDE CLion
+		\item using Docker for running MQTT broker (Mosquitto)
+		\item writing a MqttSnTestClient + PahoMqttTestMessageHandler
+	\end{itemize}
+		\image{.5\textwidth}{TestEnvironment.png}{Clion, GoogleTest, Docker, Mosquitto}{img:logo}
+\end{frame}
+
+\subsection{MQTT-SN \& MQTT Test Clients}
+\begin{frame}{MQTT-SN \& MQTT Test Client}\framesubtitle{}
+	\image{.7\textwidth}{MqttSnTestClientCollaborationDiagram.png}{MQTT-SN test client class diagram}{img:logo}
+	\image{.7\textwidth}{MqttTestMessageHandlerClassDiagram.png}{MQTT test client class diagram}{img:logo}
+\end{frame}
+
+
+\subsection{Test Results}
+\begin{frame}{Test Results}\framesubtitle{}
+	\begin{itemize}
+		\item compliance tests (well and ill-formed MQTT-SN packets)
+		\item functional tests (behaviour correct)
+		\item Total: 96 unit tests
+		\item 90 pass + 6 fail (QoS 2 not implemented but tested)
+		\item Not everyting is tested, but: Important functionality is tested and working
+	\end{itemize}
+\end{frame}
+
+\subsection{BLESocket}
+\begin{frame}{BLESocket}\framesubtitle{}
+	\begin{itemize}
+		\item drop in replacement for LinuxUdpSocket
+		\item uses self written SimpleBluetoothLowEnergySocket
+	\end{itemize}
+		\image{.7\textwidth}{BLESocketCollaborationDiagram.png}{BLESocket class diagram}{img:logo}
+\end{frame}
+
+\section{Conclustion \& Future Work}
+\begin{frame}{Conclustion}\framesubtitle{}
+	\begin{itemize}
+		\item tl;dr: project successful
+		\item implemented a MQTT-SN gateway prototype on Linux
+		\item runs partly tested on target hardware and software environment (ESP8266+SDCard)
+		\item tested (reusable)
+		\item designed to be easy adaptable to multiple environments
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Future work}\framesubtitle{}
+	\begin{itemize}
+		\item implement a MQTT-SN client for constrained devices
+		\item more transmission protocols (WS17/18 LoRa)
+		\item support more platforms: Mbed, RTOS
+		\item implement: QoS 2 \& will update
+		\item enhance tests: more tests, stress tests, measure code coverage
+	\end{itemize}
+\end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%% References          %%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section*{}
-\begin{frame}[allowframebreaks]{References}
- \def\newblock{\hskip .11em plus .33em minus .07em}
- \scriptsize
- \bibliographystyle{IEEEtran}
- \bibliography{\meta/exampleLiterature/bib}
- \normalsize
-\end{frame}
+%\section*{}
+%\begin{frame}[allowframebreaks]{References}
+% \def\newblock{\hskip .11em plus .33em minus .07em}
+% \scriptsize
+% \bibliographystyle{IEEEtran}
+% \bibliography{\meta/exampleLiterature/bib}
+% \normalsize
+%\end{frame}
 
 %% Last frame
 \frame{
@@ -123,9 +331,9 @@ compress
   \nocite*
 
   \begin{flushright}
-    Marcel Gro\ss mann
+    Gabriel Nikol
 
-    \structure{\footnotesize{\href{mailto:marcel.grossmann@uni-bamberg.de}{marcel.grossmann@uni-bamberg.de}}}
+    \structure{\footnotesize{\href{https://github.com/S3ler}{github.com/S3ler}}}
   \end{flushright}
 }
 
